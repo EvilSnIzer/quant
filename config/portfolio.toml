@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# Portfolio Risk & Regime Dashboard — configuration
+#
+# The universe is a tech-heavy equity sleeve plus a crypto sleeve:
+#   * 15 large-cap / mega-cap technology-sector equities (Yahoo Finance)
+#   * 3 crypto assets (BTC, ETH, SOL) (Yahoo Finance)
+#   * 2 ETF benchmarks (SPY, QQQ) — context only, not part of the portfolio
+#   * 3 macro series from FRED (10Y yield, VIX, broad dollar index)
+#
+# Change this file to re-point the whole pipeline at a different portfolio.
+# ---------------------------------------------------------------------------
+
+[universe]
+# Portfolio assets — equities
+equities = [
+    "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN",
+    "META", "TSLA", "AMD", "NFLX", "CRM",
+    "ORCL", "ADBE", "AVGO", "QCOM", "INTC",
+]
+# Portfolio assets — crypto sleeve (Yahoo symbols)
+crypto = ["BTC-USD", "ETH-USD", "SOL-USD"]
+# Benchmarks — fetched for context/overlay, excluded from portfolio metrics
+benchmarks = ["SPY", "QQQ"]
+
+[universe.asset_meta]
+# ticker = { name = "...", sector = "...", industry = "..." }
+AAPL    = { name = "Apple Inc.",                 sector = "Information Technology", industry = "Technology Hardware" }
+MSFT    = { name = "Microsoft Corp.",            sector = "Information Technology", industry = "Software" }
+NVDA    = { name = "NVIDIA Corp.",               sector = "Information Technology", industry = "Semiconductors" }
+GOOGL   = { name = "Alphabet Inc. (Class A)",    sector = "Communication Services", industry = "Interactive Media" }
+AMZN    = { name = "Amazon.com Inc.",            sector = "Consumer Discretionary", industry = "Broadline Retail" }
+META    = { name = "Meta Platforms Inc.",        sector = "Communication Services", industry = "Interactive Media" }
+TSLA    = { name = "Tesla Inc.",                 sector = "Consumer Discretionary", industry = "Automobiles" }
+AMD     = { name = "Advanced Micro Devices",     sector = "Information Technology", industry = "Semiconductors" }
+NFLX    = { name = "Netflix Inc.",               sector = "Communication Services", industry = "Entertainment" }
+CRM     = { name = "Salesforce Inc.",            sector = "Information Technology", industry = "Software" }
+ORCL    = { name = "Oracle Corp.",               sector = "Information Technology", industry = "Software" }
+ADBE    = { name = "Adobe Inc.",                 sector = "Information Technology", industry = "Software" }
+AVGO    = { name = "Broadcom Inc.",              sector = "Information Technology", industry = "Semiconductors" }
+QCOM    = { name = "Qualcomm Inc.",              sector = "Information Technology", industry = "Semiconductors" }
+INTC    = { name = "Intel Corp.",                sector = "Information Technology", industry = "Semiconductors" }
+BTC-USD = { name = "Bitcoin",                    sector = "Crypto",                industry = "Digital Store of Value" }
+ETH-USD = { name = "Ethereum",                   sector = "Crypto",                industry = "Smart Contract Platform" }
+SOL-USD = { name = "Solana",                     sector = "Crypto",                industry = "Smart Contract Platform" }
+SPY     = { name = "SPDR S&P 500 ETF",           sector = "Benchmark",             industry = "Index ETF" }
+QQQ     = { name = "Invesco QQQ Trust",          sector = "Benchmark",             industry = "Index ETF" }
+
+[macro]
+# FRED series pulled via the keyless public CSV endpoint (no API key needed).
+# series_id = human-readable label
+DGS10   = "10-Year Treasury Constant Maturity Yield (%)"
+VIXCLS  = "CBOE Volatility Index (VIX)"
+DTWEXBGS = "Broad Trade-Weighted Dollar Index"
+
+[window]
+# Rolling history to fetch and analyze, in years.
+years = 5
+
+[risk]
+# Rolling volatility windows (trading days)
+vol_windows = [30, 90]
+# Rolling correlation window (trading days)
+corr_window = 90
+# Historical VaR confidence levels
+var_levels = [0.95, 0.99]
+# Trailing window (trading days) used for the "current" historical VaR estimate
+var_window = 250
+# Trading days per year (annualization factor sqrt(252)); crypto is mapped
+# onto the equity calendar (see README "Methodology — calendars").
+trading_days = 252
+
+[regimes]
+# K-Means volatility-regime clustering
+n_clusters = 4          # low / normal / high / crisis
+random_state = 42
+n_init = 10
+# If the smallest cluster holds less than this share of days, refit with k-1
+min_cluster_share = 0.04
+# Rolling-mode smoothing window (trading days) for the timeline visual
+smooth_window = 5
+
+[portfolio]
+# Equal-weighted, daily-rebalanced portfolio of all non-benchmark assets
+initial_capital = 100.0

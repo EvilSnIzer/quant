@@ -1,0 +1,233 @@
+// ===========================================================================
+// PORTFOLIO RISK & REGIME DASHBOARD — DAX MEASURE LIBRARY
+// ---------------------------------------------------------------------------
+// Data model (import data/processed/powerbi/*.csv, then create relationships):
+//
+//   dim_date[date]        1 ──▶ *  fact_returns[date]
+//   dim_date[date]        1 ──▶ *  portfolio_daily[date]
+//   dim_asset[ticker]     1 ──▶ *  fact_returns[ticker]
+//
+//   portfolio_daily — one row per trading day (portfolio, benchmarks, macro,
+//                     regime label, days-in-regime, breach flags)
+//   fact_returns    — one row per (date, ticker): returns, rolling vol,
+//                     drawdown, trailing VaR, breach flags
+//   corr_long       — precomputed correlation matrices: scope = "Full sample"
+//                     or a regime name (Page 2 heatmap source)
+//   regime_episodes — contiguous regime spells (start, end, n_days)
+//   regime_summary  — per-regime aggregates
+//   risk_summary    — per-asset summary table
+//
+// After import: mark dim_date as a date table (Table tools > Mark as date
+// table). Format % measures with 1-2 decimals; "days" measures as whole numbers.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// PAGE 1 — PORTFOLIO OVERVIEW
+// ---------------------------------------------------------------------------
+
+// Cumulative return over the visible date range (relative to range start,
+// so date slicers rebase the curve).
+Range Return % =
+VAR LastIdx  = MAXX ( portfolio_daily, portfolio_daily[port_index] )
+VAR FirstIdx = MINX ( portfolio_daily, portfolio_daily[port_index] )
+RETURN DIVIDE ( LastIdx, FirstIdx ) - 1
+
+// Same for the QQQ benchmark (for the "vs benchmark" KPI).
+QQQ Range Return % =
+VAR LastIdx  = MAXX ( portfolio_daily, portfolio_daily[qqq_index] )
+VAR FirstIdx = MINX ( portfolio_daily, portfolio_daily[qqq_index] )
+RETURN DIVIDE ( LastIdx, FirstIdx ) - 1
+
+Excess vs QQQ % = [Range Return %] - [QQQ Range Return %]
+
+// Most recent portfolio 30-day annualized volatility (respects date slicer).
+Current 30D Vol % =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[port_vol30] ),
+        portfolio_daily[date] = LastDate
+    )
+
+// Most recent trailing-250-day historical VaR.
+Current VaR 95 % =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[port_var95] ),
+        portfolio_daily[date] = LastDate
+    )
+
+Current VaR 99 % =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[port_var99] ),
+        portfolio_daily[date] = LastDate
+    )
+
+// Drawdown stats over the visible range.
+Max Drawdown % = MIN ( portfolio_daily[port_drawdown] )
+
+Current Drawdown % =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[port_drawdown] ),
+        portfolio_daily[date] = LastDate
+    )
+
+Worst Day % = MIN ( portfolio_daily[port_return] )
+Best Day %  = MAX ( portfolio_daily[port_return] )
+
+// Rolling 30-day average daily return (DAX window over dim_date).
+Rolling 30D Avg Daily Return % =
+VAR LastD = MAX ( dim_date[date] )
+RETURN
+    CALCULATE (
+        AVERAGE ( portfolio_daily[port_return] ),
+        DATESINPERIOD ( dim_date[date], LastD, -30, DAY )
+    )
+
+// ---------------------------------------------------------------------------
+// VaR BACKTEST (breach counting — the DAX-heavy part of Page 1/2)
+// ---------------------------------------------------------------------------
+
+// Portfolio-level 95% VaR breaches in the visible range.
+Portfolio VaR Breaches 95 =
+SUM ( portfolio_daily[port_breach95] )
+
+Portfolio VaR Breaches 99 =
+SUM ( portfolio_daily[port_breach99] )
+
+// Days eligible for a 95% breach (VaR estimate exists = 250-day window full).
+Portfolio VaR Eligible Days =
+VAR Eligible =
+    CALCULATE (
+        COUNTROWS ( portfolio_daily ),
+        NOT ISBLANK ( portfolio_daily[port_var95] )
+    )
+RETURN Eligible
+
+// Realized breach rate vs the 5% design level — a model-risk KPI.
+Portfolio VaR Breach Rate 95 % =
+DIVIDE ( [Portfolio VaR Breaches 95], [Portfolio VaR Eligible Days] )
+
+VaR Breach Excess vs 5% = [Portfolio VaR Breach Rate 95 %] - 0.05
+
+// Asset-level breaches (filter context: any slicer on dim_asset applies).
+Asset VaR Breaches 95 = SUM ( fact_returns[breach95] )
+Asset VaR Eligible Days =
+CALCULATE ( COUNTROWS ( fact_returns ), NOT ISBLANK ( fact_returns[var95] ) )
+Asset VaR Breach Rate 95 % =
+DIVIDE ( [Asset VaR Breaches 95], [Asset VaR Eligible Days] )
+
+// Annualized volatility computed in DAX from daily returns (cross-checks the
+// precomputed columns and works on any asset/date filter combination).
+Annualized Vol % (DAX) =
+STDEVX.S ( fact_returns, fact_returns[daily_return] ) * SQRT ( 252 )
+
+// ---------------------------------------------------------------------------
+// PAGE 2 — CORRELATION & DIVERSIFICATION
+// ---------------------------------------------------------------------------
+
+// Use in the Matrix visual: rows = asset1, columns = asset2, values = this.
+Correlation = MAX ( corr_long[correlation] )
+
+// Count of asset pairs above a stress threshold (slicer on scope applies).
+Pairs Above 0.70 =
+CALCULATE (
+    COUNTROWS ( corr_long ),
+    corr_long[correlation] > 0.7
+)
+
+// Average pairwise correlation over time (line chart, portfolio_daily).
+Avg Pairwise Corr = AVERAGE ( portfolio_daily[avg_pairwise_corr] )
+Avg Equity-Crypto Corr = AVERAGE ( portfolio_daily[avg_corr_cross] )
+
+// Diversification delta: current vs the calmest regime's average.
+// regime_summary rows are keyed by regime_name.
+Calmest Regime =
+VAR Ranked =
+    ADDCOLUMNS (
+        ALL ( regime_summary[regime_name] ),
+        "@vol", CALCULATE ( MIN ( regime_summary[avg_port_vol30] ) )
+    )
+VAR Calm = TOPN ( 1, Ranked, [@vol], ASC )
+RETURN MAXX ( Calm, regime_summary[regime_name] )
+
+Calm Regime Avg Corr =
+VAR Calm = [Calmest Regime]
+RETURN
+    CALCULATE ( MAX ( regime_summary[avg_pairwise_corr] ), regime_summary[regime_name] = Calm )
+
+Corr Now vs Calm Regime =
+[Avg Pairwise Corr] - [Calm Regime Avg Corr]
+
+// ---------------------------------------------------------------------------
+// PAGE 3 — REGIME TIMELINE
+// ---------------------------------------------------------------------------
+
+Current Regime =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[regime_name_smoothed] ),
+        portfolio_daily[date] = LastDate
+    )
+
+Days in Current Regime =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE (
+        MAX ( portfolio_daily[days_in_regime] ),
+        portfolio_daily[date] = LastDate
+    )
+
+// Regime duration stats from the precomputed episode table (slice by
+// regime_name to get per-regime values).
+Avg Episode Duration (days) = AVERAGE ( regime_episodes[n_days] )
+Max Episode Duration (days) = MAX ( regime_episodes[n_days] )
+Episode Count = COUNTROWS ( regime_episodes )
+
+// Share of trading days per regime (use with a regime slicer/matrix rows).
+% of Days in Regime =
+DIVIDE (
+    COUNTROWS ( portfolio_daily ),
+    CALCULATE ( COUNTROWS ( portfolio_daily ), ALL ( portfolio_daily[regime_name_smoothed] ) )
+)
+
+// Regime-conditional portfolio stats.
+Avg 30D Vol in Regime % = AVERAGE ( portfolio_daily[port_vol30] )
+Avg Daily Return in Regime % = AVERAGE ( portfolio_daily[port_return] )
+Worst Day in Regime % = MIN ( portfolio_daily[port_return] )
+
+// Macro context (portfolio_daily carries VIXCLS / DGS10 / DTWEXBGS).
+VIX Current =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE ( MAX ( portfolio_daily[VIXCLS] ), portfolio_daily[date] = LastDate )
+
+VIX Avg in Range = AVERAGE ( portfolio_daily[VIXCLS] )
+10Y Yield Current =
+VAR LastDate =
+    CALCULATE ( MAX ( portfolio_daily[date] ), REMOVEFILTERS ( dim_date ) )
+RETURN
+    CALCULATE ( MAX ( portfolio_daily[DGS10] ), portfolio_daily[date] = LastDate )
+
+// ---------------------------------------------------------------------------
+// CONDITIONAL FORMATTING HELPERS (apply to the correlation matrix)
+// ---------------------------------------------------------------------------
+
+// Drive the background gradient on the matrix from this measure so the scale
+// is fixed at -1..1: Visual > Formatting > Cells > Background color >
+// Conditional formatting > based on [Correlation], min -1 red, max 1 blue.
+Corr Color Anchor Min = -1
+Corr Color Anchor Max = 1
