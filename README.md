@@ -14,9 +14,9 @@ The pipeline pulls 5 years of daily prices (Yahoo Finance, no API key) and macro
 |---|---|
 | **Portfolio** | Equal-weighted: 15 technology-sector mega/large-caps + BTC, ETH, SOL |
 | **CAGR / vol** | 21.4% annualized, at 30.3% vol (Sharpe rf=0: 0.78) |
-| **Current risk** | 1-day 95% historical VaR **2.6%** (99%: 4.3%), 30-day vol 20.9% |
+| **Current risk** | 1-day 95% historical VaR **2.6%** (99%: 4.3%), 30-day vol 20.9% — both estimated through the prior session |
 | **Max drawdown** | **−53.3%** (Nov 2021 peak → Dec 2022 trough, recovered in 344 days) |
-| **VaR backtest** | 95% level breached 44 of 1,005 days (**4.4%** vs 5% expected) |
+| **VaR backtest** | 95% level breached **46 of 1,003 days (4.6%** vs 5% expected**)** — out-of-sample: each day's VaR uses only returns through the day before |
 | **Regimes** | Low 42% · Normal 26% · Elevated 15% · Crisis 10% of trading days |
 | **Key finding** | Avg pairwise correlation **0.32 → 0.58** (Low → Crisis regime); equity–crypto correlation **0.17 → 0.44**. Diversification broke down exactly when it was needed. |
 
@@ -82,6 +82,7 @@ Provenance for the current snapshot (fetch time, library versions, row counts) i
 - **Rolling volatility** — 30-day and 90-day rolling std of daily returns, annualized.
 - **Correlations** — full-sample matrix, 90-day rolling average pairwise correlation, per-regime matrices, and block averages (equity–equity, equity–crypto).
 - **Historical VaR (95%, 99%)** — non-parametric percentile method: the 5th/1st percentile of the trailing 250 daily returns, reported as a positive loss magnitude. A *breach* is a daily return strictly below −VaR. No parametric or Monte Carlo methods.
+- **VaR is lagged one day** (`risk.var_lag_days`) — the VaR attributed to day *t* is estimated on returns through *t−1*, so the backtest is out-of-sample and the number is usable as a next-day limit. Without the lag, a large loss sits inside its own quantile window and pulls the 5th percentile down, which suppresses breaches on exactly the days that matter: the same pipeline reports **4.4%** un-lagged (44/1,004) vs **4.6%** lagged (46/1,003). `var95_full`/`var99_full` are deliberately *not* lagged — they describe the sample, they don't forecast it.
 - **Drawdown** — price / running max − 1, per asset and for the portfolio; max drawdown with peak/trough/recovery dates.
 - **Volatility regimes** — K-Means (k=4, fixed seed, n_init=10) on five standardized daily features: cross-asset average 30-day vol, cross-asset vol dispersion, 90-day average pairwise correlation, portfolio 30-day vol, and VIX. Clusters are ordered by volatility into **Low / Normal / Elevated / Crisis**; labels are smoothed with a 5-day majority filter for episode reporting. A degenerate-cluster guard refits with k−1 if any cluster holds <4% of days.
 - **Sharpe ratio** — excess return to volatility with rf = 0 (a ranking metric here, not a performance fee narrative).
@@ -89,7 +90,7 @@ Provenance for the current snapshot (fetch time, library versions, row counts) i
 ## Limitations (read before quoting numbers)
 
 - **Historical VaR assumes the recent past is representative** of the near future. It is a percentile of history, not a full risk model — no fat-tail modeling, no scenario augmentation.
-- **Correlations and volatilities are estimates** that cluster and shift around regime transitions; the 250-day VaR window adapts slowly by design.
+- **Correlations and volatilities are estimates** that cluster and shift around regime transitions; the 250-day VaR window adapts slowly by design. A 4.6% breach rate is *consistent with* 5% at n≈1,000 (the 95% binomial band is ≈3.7–6.3%), not proof of calibration.
 - **K-Means is descriptive, not predictive**: features are z-scored on the full sample (mild lookahead) and the labels explain past structure rather than forecast transitions.
 - **Crypto on the equity calendar** — weekend crypto moves book to Monday (variance preserved, daily path compressed).
 - **Equal-weight daily rebalancing** ignores transaction costs, slippage and taxes.

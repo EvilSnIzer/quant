@@ -65,6 +65,11 @@ corr_window = 90
 var_levels = [0.95, 0.99]
 # Trailing window (trading days) used for the "current" historical VaR estimate
 var_window = 250
+# Days by which each VaR estimate is lagged. 1 = the number attributed to day t
+# is estimated only on returns through day t-1, which is what makes the VaR
+# backtest a genuine out-of-sample test (a risk limit has to be knowable before
+# the day it governs). 0 reproduces the in-sample convention.
+var_lag_days = 1
 # Trading days per year (annualization factor sqrt(252)); crypto is mapped
 # onto the equity calendar (see README "Methodology — calendars").
 trading_days = 252
