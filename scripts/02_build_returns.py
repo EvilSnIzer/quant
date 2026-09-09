@@ -104,7 +104,6 @@ def main() -> int:
         bench_out[f"{t.lower()}_index"] = initial * (1 + bench_ret[t].fillna(0)).cumprod()
 
     # ---- Macro aligned ------------------------------------------------------- #
-    macro_cols = list(cfg["macro"])
     if (RAW / "macro.csv").exists():
         macro = pd.read_csv(RAW / "macro.csv", index_col="date", parse_dates=True)
         macro = macro.reindex(calendar).ffill(limit=10)
