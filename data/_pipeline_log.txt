@@ -13,7 +13,7 @@ AAPL       0.188
 MSFT       0.149
 NVDA       0.599
 GOOGL      0.221
-AMZN       0.140
+AMZN       0.141
 META       0.214
 TSLA       0.255
 AMD        0.481
@@ -26,7 +26,7 @@ QCOM       0.155
 INTC       0.303
 BTC-USD    0.243
 ETH-USD    0.176
-SOL-USD    0.306
+SOL-USD    0.305
 dtype: float64
 [returns] done
 [risk] wrote rolling_vol, drawdown, var_daily, corr_full, corr_rolling,
