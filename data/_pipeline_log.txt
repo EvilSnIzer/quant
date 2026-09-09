@@ -19,10 +19,10 @@ TSLA       0.255
 AMD        0.481
 NFLX       0.148
 CRM        0.067
-ORCL       0.225
+ORCL       0.224
 ADBE      -0.119
-AVGO       0.518
-QCOM       0.155
+AVGO       0.517
+QCOM       0.154
 INTC       0.303
 BTC-USD    0.243
 ETH-USD    0.176
