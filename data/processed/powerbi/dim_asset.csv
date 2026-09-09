@@ -1,0 +1,21 @@
+ticker,name,asset_class,sector,industry,in_portfolio
+AAPL,Apple Inc.,Equity,Information Technology,Technology Hardware,True
+MSFT,Microsoft Corp.,Equity,Information Technology,Software,True
+NVDA,NVIDIA Corp.,Equity,Information Technology,Semiconductors,True
+GOOGL,Alphabet Inc. (Class A),Equity,Communication Services,Interactive Media,True
+AMZN,Amazon.com Inc.,Equity,Consumer Discretionary,Broadline Retail,True
+META,Meta Platforms Inc.,Equity,Communication Services,Interactive Media,True
+TSLA,Tesla Inc.,Equity,Consumer Discretionary,Automobiles,True
+AMD,Advanced Micro Devices,Equity,Information Technology,Semiconductors,True
+NFLX,Netflix Inc.,Equity,Communication Services,Entertainment,True
+CRM,Salesforce Inc.,Equity,Information Technology,Software,True
+ORCL,Oracle Corp.,Equity,Information Technology,Software,True
+ADBE,Adobe Inc.,Equity,Information Technology,Software,True
+AVGO,Broadcom Inc.,Equity,Information Technology,Semiconductors,True
+QCOM,Qualcomm Inc.,Equity,Information Technology,Semiconductors,True
+INTC,Intel Corp.,Equity,Information Technology,Semiconductors,True
+BTC-USD,Bitcoin,Crypto,Crypto,Digital Store of Value,True
+ETH-USD,Ethereum,Crypto,Crypto,Smart Contract Platform,True
+SOL-USD,Solana,Crypto,Crypto,Smart Contract Platform,True
+SPY,SPDR S&P 500 ETF,Benchmark,Benchmark,Index ETF,False
+QQQ,Invesco QQQ Trust,Benchmark,Benchmark,Index ETF,False

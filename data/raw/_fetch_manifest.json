@@ -1,0 +1,41 @@
+{
+  "fetched_at_utc": "2026-09-09T19:53:13+00:00",
+  "source": "Yahoo Finance (yfinance) + FRED fredgraph.csv",
+  "yfinance_version": "1.7.0",
+  "pandas_version": "3.0.5",
+  "years": 5,
+  "portfolio_assets": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "TSLA",
+    "AMD",
+    "NFLX",
+    "CRM",
+    "ORCL",
+    "ADBE",
+    "AVGO",
+    "QCOM",
+    "INTC",
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD"
+  ],
+  "benchmarks": [
+    "SPY",
+    "QQQ"
+  ],
+  "macro_series": [
+    "DGS10",
+    "VIXCLS",
+    "DTWEXBGS"
+  ],
+  "price_range": {
+    "start": "2021-09-09",
+    "end": "2026-09-09",
+    "rows": 1827
+  }
+}

@@ -1,0 +1,70 @@
+[fetch] Yahoo Finance: 18 portfolio assets + 2 benchmarks, 5y daily
+[fetch] wrote prices_portfolio.csv: 1827 rows x 18 cols, 2021-09-09 → 2026-09-09
+[fetch] wrote prices_benchmark.csv: 1827 rows x 2 cols, 2021-09-09 → 2026-09-09
+[fetch] FRED DGS10: 16155 observations
+[fetch] FRED VIXCLS: 9269 observations
+[fetch] FRED DTWEXBGS: 5184 observations
+[fetch] wrote _fetch_manifest.json
+[fetch] done
+[returns] equity trading calendar: 1255 days (2021-09-09 → 2026-09-09)
+[returns] wrote returns_wide.csv 1254x18
+[returns] full-sample annualized mean returns:
+AAPL       0.188
+MSFT       0.149
+NVDA       0.599
+GOOGL      0.221
+AMZN       0.140
+META       0.214
+TSLA       0.255
+AMD        0.481
+NFLX       0.148
+CRM        0.067
+ORCL       0.225
+ADBE      -0.119
+AVGO       0.518
+QCOM       0.155
+INTC       0.303
+BTC-USD    0.243
+ETH-USD    0.176
+SOL-USD    0.306
+dtype: float64
+[returns] done
+[risk] wrote rolling_vol, drawdown, var_daily, corr_full, corr_rolling,
+[risk]       portfolio_metrics, risk_summary
+[risk] latest portfolio vol30=20.9%  var95=2.58%  avg_corr=0.18
+[risk] done
+[regimes] clustering on 1165 days x 5 features: ['avg_vol30', 'vol30_dispersion', 'avg_pairwise_corr', 'port_vol30', 'vix']
+[regimes] k=4: cluster shares = {0: 0.453, 3: 0.277, 2: 0.164, 1: 0.106}
+[regimes] k=4: silhouette = 0.303
+[regimes] centroid profile (annualized vol / avg corr / VIX):
+          avg_vol30  avg_pairwise_corr  port_vol30     vix
+Low           0.389              0.320       0.217  15.960
+Normal        0.467              0.304       0.277  17.975
+Elevated      0.483              0.538       0.361  25.621
+Crisis        0.643              0.583       0.517  25.886
+[regimes] chose k=4; regimes.csv/regime_episodes.csv/regime_summary.csv written
+regime_name  n_days  pct_days  n_episodes  avg_episode_days  max_episode_days  avg_port_vol30  avg_pairwise_corr  avg_vix  avg_port_daily_return  worst_port_day
+     Crisis     123     0.098           4            30.750                57           0.512              0.585   25.502                  0.001          -0.088
+   Elevated     188     0.150           9            20.889                71           0.364              0.544   25.382                 -0.000          -0.069
+        Low     528     0.421          11            48.000               159           0.217              0.318   15.953                  0.002          -0.047
+     Normal     326     0.260          12            27.167                52           0.279              0.304   18.339                 -0.001          -0.060
+[regimes] done
+[powerbi] corr_long.csv: 1836 rows
+[powerbi] dim_asset.csv: 20 rows
+[powerbi] dim_date.csv: 1827 rows
+[powerbi] fact_returns.csv: 22572 rows
+[powerbi] portfolio_daily.csv: 1254 rows
+[powerbi] regime_episodes.csv: 37 rows
+[powerbi] regime_summary.csv: 4 rows
+[powerbi] risk_summary.csv: 19 rows
+[powerbi] done
+[charts] wrote cumulative_returns.png
+[charts] wrote drawdown.png
+[charts] wrote vol_regime_timeline.png
+[charts] wrote rolling_correlation.png
+[charts] wrote corr_heatmap.png
+[charts] wrote corr_by_regime.png
+[charts] wrote var_backtest.png
+[charts] wrote risk_return_map.png
+[charts] done
+[memo] wrote /home/runner/work/quant/quant/reports/Portfolio_Risk_Summary.pdf
