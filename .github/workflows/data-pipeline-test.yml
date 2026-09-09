@@ -1,6 +1,8 @@
 name: Data Pipeline Test
 on:
-  workflow_dispatch:
+  push:
+    branches: [arena/**]
+    paths: [".github/workflows/data-pipeline-test.yml", "scripts/fetch_smoke.py"]
 
 permissions:
   contents: write
