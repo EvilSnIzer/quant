@@ -110,8 +110,10 @@ def main() -> int:
     macro = pd.read_csv(PROC / "macro_daily.csv", index_col="date", parse_dates=True)
 
     feats = pm[["avg_vol30", "vol30_dispersion", "avg_pairwise_corr", "port_vol30"]].copy()
-    if "vix" in macro.columns:
-        feats["vix"] = macro["vix"]
+    # VIX is optional macro context; FRED names it VIXCLS
+    vix_col = next((c for c in macro.columns if str(c).upper().startswith("VIX")), None)
+    if vix_col is not None:
+        feats["vix"] = macro[vix_col]
     feats = feats.dropna()
     feature_cols = list(feats.columns)
     print(f"[regimes] clustering on {len(feats)} days x {len(feature_cols)} features: {feature_cols}", flush=True)

@@ -95,14 +95,19 @@ def main() -> int:
     dd_long.to_csv(PROC / "drawdown.csv", index=False)
 
     # ---- Historical VaR + breaches (long) ----------------------------------- #
-    var_frames = []
-    for level in var_levels:
-        q = returns.rolling(var_window, min_periods=var_window).quantile(1 - level)
-        var_frames.append((-q).rename(f"var{int(level*100)}"))
-    var_levels_frame = pd.concat(var_frames, axis=1)
+    # Rolling quantiles are computed wide (date x ticker), one frame per level,
+    # then stacked into a single long (date, ticker) table.
+    var_wide = pd.concat(
+        {
+            f"var{int(level * 100)}": -returns.rolling(var_window, min_periods=var_window)
+            .quantile(1 - level)
+            for level in var_levels
+        },
+        axis=1,
+    )
     ret_long = returns.stack(future_stack=True).rename("daily_return")
-    var_long = pd.concat([ret_long, var_levels_frame], axis=1).reset_index()
-    var_long = var_long.rename(columns={"level_1": "ticker"})
+    var_long = var_wide.stack(future_stack=True).join(ret_long).reset_index()
+    var_long.columns = ["date", "ticker"] + list(var_long.columns[2:])
     for level in var_levels:
         tag = int(level * 100)
         var_long[f"breach{tag}"] = var_long["daily_return"] < -var_long[f"var{tag}"]
@@ -163,19 +168,17 @@ def main() -> int:
 
     # ---- Per-asset summary ------------------------------------------------------ #
     meta = cfg["universe"]["asset_meta"]
-    summary_rows = []
-    n_days = len(returns)
-    for a in assets:
-        r = returns[a].dropna()
-        p = prices[a].dropna()
+
+    def _summary_row(ticker: str, name: str, asset_class: str,
+                     r: pd.Series, p: pd.Series, n_days: int) -> dict:
         cagr = (p.iloc[-1] / p.iloc[0]) ** (td / max(len(p) - 1, 1)) - 1.0
         vol = r.std() * np.sqrt(td)
         sharpe = (r.mean() * td) / vol if vol > 0 else np.nan
         mdd = max_drawdown_details(p)
-        row = {
-            "ticker": a,
-            "name": meta.get(a, {}).get("name", a),
-            "asset_class": "Crypto" if a in crypto else "Equity",
+        return {
+            "ticker": ticker,
+            "name": name,
+            "asset_class": asset_class,
             "cagr": cagr,
             "ann_vol": vol,
             "sharpe_rf0": sharpe,
@@ -186,30 +189,31 @@ def main() -> int:
             "vol30_current": float(r.tail(30).std() * np.sqrt(td)),
             "worst_day": float(r.min()),
             "best_day": float(r.max()),
-            **{k: (v.isoformat() if pd.notna(v) else None) for k, v in mdd.items()},
+            "max_drawdown": mdd["max_drawdown"],
+            "dd_peak_date": mdd["dd_peak_date"].isoformat() if pd.notna(mdd["dd_peak_date"]) else None,
+            "dd_trough_date": mdd["dd_trough_date"].isoformat() if pd.notna(mdd["dd_trough_date"]) else None,
+            "dd_recovery_date": mdd["dd_recovery_date"].isoformat() if pd.notna(mdd["dd_recovery_date"]) else None,
         }
-        summary_rows.append(row)
+
+    summary_rows = [
+        _summary_row(
+            a,
+            meta.get(a, {}).get("name", a),
+            "Crypto" if a in crypto else "Equity",
+            returns[a].dropna(),
+            prices[a].dropna(),
+            len(returns),
+        )
+        for a in assets
+    ]
     summary = pd.DataFrame(summary_rows)
-    summary.to_csv(PROC / "risk_summary.csv", index=False)
 
     # Portfolio summary row appended for convenience tables
     pr = port_ret.dropna()
-    port_row = {
-        "ticker": "PORTFOLIO",
-        "name": "Equal-Weighted Portfolio",
-        "asset_class": "Portfolio",
-        "cagr": (port["port_index"].iloc[-1] / port["port_index"].iloc[0]) ** (td / max(n_days - 1, 1)) - 1.0,
-        "ann_vol": pr.std() * np.sqrt(td),
-        "sharpe_rf0": pr.mean() * td / (pr.std() * np.sqrt(td)),
-        "var95_current": float(-pr.tail(var_window).quantile(0.05)),
-        "var99_current": float(-pr.tail(var_window).quantile(0.01)),
-        "var95_full": float(-pr.quantile(0.05)),
-        "var99_full": float(-pr.quantile(0.01)),
-        "vol30_current": float(pr.tail(30).std() * np.sqrt(td)),
-        "worst_day": float(pr.min()),
-        "best_day": float(pr.max()),
-        **{k: (v.isoformat() if pd.notna(v) else None) for k, v in max_drawdown_details(port["port_index"]).items()},
-    }
+    port_row = _summary_row(
+        "PORTFOLIO", "Equal-Weighted Portfolio", "Portfolio",
+        pr, port["port_index"], len(returns),
+    )
     summary = pd.concat([summary, pd.DataFrame([port_row])], ignore_index=True)
     summary.to_csv(PROC / "risk_summary.csv", index=False)
 

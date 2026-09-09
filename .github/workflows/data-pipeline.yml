@@ -1,0 +1,63 @@
+name: Data Pipeline
+
+# Runs the full pipeline (fetch -> analytics -> Power BI tables -> charts -> memo)
+# and commits refreshed outputs back to the branch. This is how the repo stays
+# current: the runner has unrestricted internet access, so yfinance/FRED calls
+# that are blocked in restricted environments still work here.
+#
+# Triggers:
+#   * push that touches the pipeline code/config
+#   * weekly schedule (NOTE: schedule triggers only fire from the default
+#     branch — merge this branch to main to enable the weekly auto-refresh)
+#   * manual run from the Actions tab (once merged to main)
+
+on:
+  push:
+    branches: [main, arena/**]
+    paths: ["scripts/**", "config/**", "requirements.txt", ".github/workflows/data-pipeline.yml"]
+  schedule:
+    - cron: "0 1 * * 2" # Tuesdays 01:00 UTC, after the US Monday close
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-pipeline
+  cancel-in-progress: true
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        shell: bash # explicit bash => -eo pipefail, so tee cannot mask failures
+        run: |
+          mkdir -p data/raw data/processed/powerbi reports/charts
+          {
+            python scripts/01_fetch_data.py &&
+            python scripts/02_build_returns.py &&
+            python scripts/03_risk_metrics.py &&
+            python scripts/04_regimes.py &&
+            python scripts/05_export_powerbi.py &&
+            python scripts/06_make_charts.py &&
+            python scripts/07_generate_memo.py
+          } 2>&1 | tee data/_pipeline_log.txt
+
+      - name: Commit refreshed outputs
+        run: |
+          git config user.name "arena-ai-coding-agent[bot]"
+          git config user.email "arena-ai-coding-agent[bot]@users.noreply.github.com"
+          git add -A data/ reports/
+          git commit -m "data: refresh pipeline outputs ($(date -u +%F))" || echo "no changes to commit"
+          git push
