@@ -13,7 +13,7 @@ The pipeline pulls 5 years of daily prices (Yahoo Finance, no API key) and macro
 | | |
 |---|---|
 | **Portfolio** | Equal-weighted: 15 technology-sector mega/large-caps + BTC, ETH, SOL |
-| **CAGR / vol** | 21.4% annualized, at 30.3% vol (Sharpe rf=0: 0.78) |
+| **CAGR / vol** | 21.5% annualized, at 30.3% vol (Sharpe rf=0: 0.79) |
 | **Current risk** | 1-day 95% historical VaR **2.6%** (99%: 4.3%), 30-day vol 20.9% — both estimated through the prior session |
 | **Max drawdown** | **−53.3%** (Nov 2021 peak → Dec 2022 trough, recovered in 344 days) |
 | **VaR backtest** | 95% level breached **46 of 1,003 days (4.6%** vs 5% expected**)** — out-of-sample: each day's VaR uses only returns through the day before |
