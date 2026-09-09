@@ -6,54 +6,54 @@
 [fetch] FRED DTWEXBGS: 5184 observations
 [fetch] wrote _fetch_manifest.json
 [fetch] done
-[returns] equity trading calendar: 1255 days (2021-09-09 → 2026-09-09)
-[returns] wrote returns_wide.csv 1254x18
+[returns] equity trading calendar: 1254 days (2021-09-10 → 2026-09-09)
+[returns] wrote returns_wide.csv 1253x18
 [returns] full-sample annualized mean returns:
-AAPL       0.188
-MSFT       0.149
-NVDA       0.599
-GOOGL      0.221
-AMZN       0.141
+AAPL       0.195
+MSFT       0.150
+NVDA       0.597
+GOOGL      0.225
+AMZN       0.142
 META       0.214
-TSLA       0.255
-AMD        0.481
+TSLA       0.260
+AMD        0.484
 NFLX       0.148
-CRM        0.067
-ORCL       0.224
-ADBE      -0.119
-AVGO       0.517
+CRM        0.070
+ORCL       0.225
+ADBE      -0.118
+AVGO       0.516
 QCOM       0.154
-INTC       0.303
-BTC-USD    0.243
-ETH-USD    0.176
-SOL-USD    0.305
+INTC       0.302
+BTC-USD    0.250
+ETH-USD    0.189
+SOL-USD    0.314
 dtype: float64
 [returns] done
 [risk] wrote rolling_vol, drawdown, var_daily, corr_full, corr_rolling,
 [risk]       portfolio_metrics, risk_summary
 [risk] latest portfolio vol30=20.9%  var95=2.58%  avg_corr=0.18
 [risk] done
-[regimes] clustering on 1165 days x 5 features: ['avg_vol30', 'vol30_dispersion', 'avg_pairwise_corr', 'port_vol30', 'vix']
-[regimes] k=4: cluster shares = {0: 0.453, 3: 0.277, 2: 0.164, 1: 0.106}
+[regimes] clustering on 1164 days x 5 features: ['avg_vol30', 'vol30_dispersion', 'avg_pairwise_corr', 'port_vol30', 'vix']
+[regimes] k=4: cluster shares = {2: 0.454, 0: 0.277, 3: 0.163, 1: 0.106}
 [regimes] k=4: silhouette = 0.303
 [regimes] centroid profile (annualized vol / avg corr / VIX):
           avg_vol30  avg_pairwise_corr  port_vol30     vix
 Low           0.389              0.320       0.217  15.960
 Normal        0.467              0.304       0.277  17.975
-Elevated      0.483              0.538       0.361  25.621
+Elevated      0.483              0.538       0.361  25.636
 Crisis        0.643              0.583       0.517  25.886
 [regimes] chose k=4; regimes.csv/regime_episodes.csv/regime_summary.csv written
 regime_name  n_days  pct_days  n_episodes  avg_episode_days  max_episode_days  avg_port_vol30  avg_pairwise_corr  avg_vix  avg_port_daily_return  worst_port_day
      Crisis     123     0.098           4            30.750                57           0.512              0.585   25.502                  0.001          -0.088
-   Elevated     188     0.150           9            20.889                71           0.364              0.544   25.382                 -0.000          -0.069
+   Elevated     187     0.149           9            20.778                71           0.364              0.545   25.396                 -0.000          -0.069
         Low     528     0.421          11            48.000               159           0.217              0.318   15.953                  0.002          -0.047
      Normal     326     0.260          12            27.167                52           0.279              0.304   18.339                 -0.001          -0.060
 [regimes] done
 [powerbi] corr_long.csv: 1836 rows
 [powerbi] dim_asset.csv: 20 rows
-[powerbi] dim_date.csv: 1827 rows
-[powerbi] fact_returns.csv: 22572 rows
-[powerbi] portfolio_daily.csv: 1254 rows
+[powerbi] dim_date.csv: 1826 rows
+[powerbi] fact_returns.csv: 22554 rows
+[powerbi] portfolio_daily.csv: 1253 rows
 [powerbi] regime_episodes.csv: 37 rows
 [powerbi] regime_summary.csv: 4 rows
 [powerbi] risk_summary.csv: 19 rows
