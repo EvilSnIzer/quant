@@ -2,7 +2,7 @@ name: Data Pipeline Test
 on:
   push:
     branches: [arena/**]
-    paths: [".github/workflows/data-pipeline-test.yml", "scripts/fetch_smoke.py"]
+    paths: [".github/workflows/data-pipeline-test.yml"]
 
 permissions:
   contents: write
@@ -16,21 +16,39 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install deps
-        run: pip install yfinance pandas
-      - name: Fetch smoke test
+        run: pip install yfinance pandas curl_cffi
+      - name: Diagnose and fetch
         run: |
-          python - << 'PY'
-          import yfinance as yf, pandas as pd
-          df = yf.download("AAPL", period="5d", interval="1d", progress=False, auto_adjust=True)
-          if df.empty:
-              raise SystemExit("yfinance returned empty frame")
-          df.to_csv("data/.actions_smoke_test.csv")
-          print(df.tail(2))
-          PY
-      - name: Commit data
+          set -o pipefail
+          {
+            echo "=== runner network: query1 ==="
+            curl -sS -o /dev/null -w "query1 http %{http_code}\n" --max-time 20 "https://query1.finance.yahoo.com/v8/finance/chart/AAPL?range=5d&interval=1d" || echo "query1 curl failed rc=$?"
+            echo "=== runner network: fc.yahoo ==="
+            curl -sS -o /dev/null -w "fc http %{http_code}\n" --max-time 20 "https://fc.yahoo.com" || echo "fc curl failed rc=$?"
+            echo "=== yfinance fetch ==="
+            python - << 'PY'
+            import traceback
+            try:
+                import yfinance as yf
+                print("yfinance", yf.__version__)
+                df = yf.download("AAPL", period="5d", progress=False, auto_adjust=True)
+                print("shape:", df.shape)
+                print(df.tail(3))
+                if df.empty:
+                    raise SystemExit("empty frame")
+                df.to_csv("data/.actions_smoke_test.csv")
+            except SystemExit:
+                raise
+            except Exception:
+                traceback.print_exc()
+                raise SystemExit(1)
+            PY
+          } 2>&1 | tee data/.actions_log.txt
+      - name: Commit artifacts
+        if: always()
         run: |
           git config user.name "arena-ai-coding-agent[bot]"
           git config user.email "arena-ai-coding-agent[bot]@users.noreply.github.com"
-          git add data/.actions_smoke_test.csv
-          git commit -m "chore: actions smoke test data" || echo "nothing to commit"
+          git add data/.actions_log.txt data/.actions_smoke_test.csv 2>/dev/null || true
+          git commit -m "chore: actions diagnostics" || echo "nothing to commit"
           git push
