@@ -1,0 +1,34 @@
+name: Data Pipeline Test
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install yfinance pandas
+      - name: Fetch smoke test
+        run: |
+          python - << 'PY'
+          import yfinance as yf, pandas as pd
+          df = yf.download("AAPL", period="5d", interval="1d", progress=False, auto_adjust=True)
+          if df.empty:
+              raise SystemExit("yfinance returned empty frame")
+          df.to_csv("data/.actions_smoke_test.csv")
+          print(df.tail(2))
+          PY
+      - name: Commit data
+        run: |
+          git config user.name "arena-ai-coding-agent[bot]"
+          git config user.email "arena-ai-coding-agent[bot]@users.noreply.github.com"
+          git add data/.actions_smoke_test.csv
+          git commit -m "chore: actions smoke test data" || echo "nothing to commit"
+          git push
