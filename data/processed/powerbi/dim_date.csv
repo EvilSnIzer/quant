@@ -1,9 +1,4 @@
 date,year,quarter,month,month_name,day,weekday,week_of_year
-2021-09-10,2021,3,9,Sep,10,Friday,36
-2021-09-11,2021,3,9,Sep,11,Saturday,36
-2021-09-12,2021,3,9,Sep,12,Sunday,36
-2021-09-13,2021,3,9,Sep,13,Monday,37
-2021-09-14,2021,3,9,Sep,14,Tuesday,37
 2021-09-15,2021,3,9,Sep,15,Wednesday,37
 2021-09-16,2021,3,9,Sep,16,Thursday,37
 2021-09-17,2021,3,9,Sep,17,Friday,37
@@ -1825,3 +1820,8 @@ date,year,quarter,month,month_name,day,weekday,week_of_year
 2026-09-07,2026,3,9,Sep,7,Monday,37
 2026-09-08,2026,3,9,Sep,8,Tuesday,37
 2026-09-09,2026,3,9,Sep,9,Wednesday,37
+2026-09-10,2026,3,9,Sep,10,Thursday,37
+2026-09-11,2026,3,9,Sep,11,Friday,37
+2026-09-12,2026,3,9,Sep,12,Saturday,37
+2026-09-13,2026,3,9,Sep,13,Sunday,37
+2026-09-14,2026,3,9,Sep,14,Monday,38
