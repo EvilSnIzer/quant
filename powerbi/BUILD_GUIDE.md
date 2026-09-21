@@ -6,6 +6,12 @@ referenced here is defined (with commentary) in
 [`measures.dax`](measures.dax) — copy each block into the model via
 **Modeling > New measure**.
 
+For a visual walkthrough before opening Power BI, open the self-contained
+[virtual dashboard preview](dashboard_mockup.html). It mirrors the three pages,
+uses the repository's current chart exhibits, and includes clickable page
+navigation plus a regime-scope selector. The full KPI definitions, formulas,
+source columns and interpretation rules are in the [KPI catalog](KPI_CATALOG.md).
+
 Approximate build time: 60–90 minutes.
 
 ---

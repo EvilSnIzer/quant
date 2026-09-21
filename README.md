@@ -117,6 +117,9 @@ cluster count) — every downstream step is config-driven.
 **Power BI:** open Power BI Desktop, import the CSVs from
 `data/processed/powerbi/`, then follow [`powerbi/BUILD_GUIDE.md`](powerbi/BUILD_GUIDE.md)
 and create the measures from [`powerbi/measures.dax`](powerbi/measures.dax).
+For a visual preview without Power BI, open the self-contained
+[`powerbi/dashboard_mockup.html`](powerbi/dashboard_mockup.html); the KPI
+catalog and formulas are documented in [`powerbi/KPI_CATALOG.md`](powerbi/KPI_CATALOG.md).
 The report: **Page 1** portfolio overview (cumulative returns, current VaR,
 drawdown), **Page 2** correlation heatmap with a regime filter, **Page 3**
 regime timeline with regime-duration stats.

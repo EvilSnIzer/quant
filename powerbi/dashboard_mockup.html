@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Risk &amp; Regime Dashboard — Virtual Preview</title>
+<style>
+:root {
+  --ink:#e7edf7; --muted:#91a0b7; --muted-2:#63728a; --bg:#0d1524; --sidebar:#101b2d;
+  --panel:#142239; --panel-2:#172943; --line:#253956; --teal:#71d6aa; --blue:#7ea9ff;
+  --red:#f07878; --amber:#f3bd68; --low:#71d6aa; --normal:#7ea9ff; --elevated:#f3bd68; --crisis:#f07878;
+  --shadow:0 18px 48px rgba(0,0,0,.16);
+}
+* { box-sizing:border-box; }
+html,body { margin:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+body { font-size:14px; }
+button,select { font:inherit; }
+.app { display:grid; grid-template-columns:238px minmax(0,1fr); min-height:100vh; }
+.sidebar { background:var(--sidebar); border-right:1px solid var(--line); padding:28px 16px 20px; display:flex; flex-direction:column; gap:28px; }
+.brand { padding:0 12px; }
+.brand-mark { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:linear-gradient(135deg,#71d6aa,#438dba); color:#07131d; font-weight:900; margin-bottom:16px; box-shadow:0 8px 18px rgba(113,214,170,.18); }
+.brand h1 { font-size:16px; line-height:1.2; margin:0 0 6px; letter-spacing:-.03em; }
+.brand p { color:var(--muted); font-size:11px; line-height:1.5; margin:0; }
+.nav-label { color:var(--muted-2); text-transform:uppercase; letter-spacing:.14em; font-size:10px; font-weight:800; padding:0 12px 8px; }
+.nav { display:grid; gap:6px; }
+.nav button { cursor:pointer; border:0; border-radius:9px; background:transparent; color:var(--muted); width:100%; display:flex; align-items:center; gap:11px; text-align:left; padding:12px; font-weight:650; font-size:13px; }
+.nav button:hover,.nav button.active { background:#1b304c; color:var(--ink); }
+.nav button.active { box-shadow:inset 3px 0 var(--teal); }
+.nav-icon { width:19px; text-align:center; color:var(--muted-2); font-size:16px; }
+.nav button.active .nav-icon { color:var(--teal); }
+.sidebar-bottom { margin-top:auto; }
+.data-health { border:1px solid #28475a; background:rgba(113,214,170,.06); border-radius:12px; padding:13px; }
+.data-health .eyebrow { color:var(--teal); }
+.eyebrow { text-transform:uppercase; font-size:9px; letter-spacing:.14em; font-weight:850; color:var(--muted); }
+.data-health strong { display:block; font-size:12px; margin:6px 0 4px; }
+.data-health p { color:var(--muted); font-size:10px; line-height:1.45; margin:0; }
+.main { min-width:0; }
+.topbar { height:72px; display:flex; align-items:center; justify-content:space-between; padding:0 34px; border-bottom:1px solid var(--line); background:rgba(13,21,36,.8); }
+.breadcrumb { color:var(--muted); font-size:12px; }
+.breadcrumb b { color:var(--ink); font-weight:700; }
+.top-actions { display:flex; align-items:center; gap:10px; }
+.chip { border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:8px 11px; font-size:11px; background:#111e31; }
+.chip.live { color:var(--teal); border-color:#2b5d5b; }
+.dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--teal); margin-right:6px; box-shadow:0 0 0 3px rgba(113,214,170,.12); }
+.content { max-width:1530px; margin:0 auto; padding:32px 34px 44px; }
+.page { display:none; animation:fade .18s ease-out; }
+.page.active { display:block; }
+@keyframes fade { from { opacity:.1; transform:translateY(3px); } to { opacity:1; transform:none; } }
+.hero { display:flex; justify-content:space-between; align-items:flex-end; gap:22px; margin-bottom:26px; }
+.hero h2 { font-size:28px; line-height:1.1; margin:8px 0 8px; letter-spacing:-.045em; }
+.hero p { color:var(--muted); margin:0; font-size:13px; }
+.hero-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.control { display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:#111e31; color:var(--muted); font-size:11px; }
+.control select { color:var(--ink); border:0; outline:0; background:transparent; font-weight:700; cursor:pointer; }
+.status-badge { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:999px; font-size:11px; font-weight:750; }
+.status-badge.low,.regime-pill.low,.regime-card.low { color:var(--low); background:rgba(113,214,170,.11); }
+.status-badge.normal,.regime-pill.normal,.regime-card.normal { color:var(--normal); background:rgba(126,169,255,.11); }
+.status-badge.elevated,.regime-pill.elevated,.regime-card.elevated { color:var(--elevated); background:rgba(243,189,104,.11); }
+.status-badge.crisis,.regime-pill.crisis,.regime-card.crisis { color:var(--crisis); background:rgba(240,120,120,.11); }
+.status-badge .dot { background:currentColor; box-shadow:none; margin:0; }
+.kpi-grid { display:grid; grid-template-columns:repeat(6,minmax(130px,1fr)); gap:12px; margin-bottom:16px; }
+.kpi-card { min-height:137px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; position:relative; overflow:hidden; box-shadow:var(--shadow); }
+.kpi-card::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--teal); }
+.kpi-card.red::before { background:var(--red); } .kpi-card.amber::before { background:var(--amber); } .kpi-card.blue::before { background:var(--blue); }
+.kpi-label { text-transform:uppercase; letter-spacing:.11em; font-size:9px; color:var(--muted); font-weight:850; margin-bottom:13px; }
+.kpi-value { font-size:24px; letter-spacing:-.04em; font-weight:780; white-space:nowrap; }
+.kpi-note { color:var(--muted); font-size:10px; margin-top:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.spark { position:absolute; width:73px; height:20px; right:12px; bottom:14px; opacity:.8; }
+.panel-grid { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr); gap:16px; margin-bottom:16px; }
+.panel-grid.equal { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+.panel-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:17px 18px 12px; }
+.panel-heading h3 { margin:0 0 5px; font-size:14px; letter-spacing:-.02em; }
+.panel-heading p { color:var(--muted); margin:0; font-size:10px; }
+.panel-menu,.table-link { color:var(--muted-2); font-size:12px; } .table-link { color:var(--teal); font-size:11px; }
+.chart-frame { background:#fff; min-height:258px; padding:9px 10px 7px; display:flex; align-items:center; }
+.chart-frame img { width:100%; max-height:295px; display:block; object-fit:contain; }
+.chart-panel.tall .chart-frame { min-height:345px; }
+.table-scroll { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; min-width:545px; }
+th { color:var(--muted-2); font-weight:800; text-transform:uppercase; letter-spacing:.1em; font-size:9px; text-align:right; padding:0 18px 10px; border-bottom:1px solid var(--line); }
+th:first-child,td:first-child { text-align:left; }
+td { padding:11px 18px; border-bottom:1px solid rgba(37,57,86,.66); text-align:right; font-size:11px; color:#cbd4e2; }
+tbody tr:last-child td { border-bottom:0; }
+td small { display:block; color:var(--muted-2); font-size:9px; margin-top:3px; }
+.ticker-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:8px; } .ticker-dot.equity { background:var(--blue); } .ticker-dot.crypto { background:var(--amber); }
+.negative { color:var(--red); } .risk-value { color:var(--amber); font-weight:750; }
+.insight { padding:17px 18px; border-left:3px solid var(--amber); background:rgba(243,189,104,.05); margin:16px; border-radius:0 8px 8px 0; }
+.insight strong { display:block; font-size:12px; margin-bottom:6px; } .insight p { color:var(--muted); font-size:11px; line-height:1.55; margin:0; }
+.corr-hero { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+.metric-box { border:1px solid var(--line); background:var(--panel); border-radius:12px; padding:16px; }
+.metric-box .metric { font-size:24px; font-weight:780; letter-spacing:-.05em; margin:8px 0 4px; } .metric-box p { color:var(--muted); margin:0; font-size:10px; }
+.scope-note { color:var(--muted); font-size:10px; margin:0 18px 14px; padding:9px 11px; border-radius:7px; background:#111e31; border:1px solid var(--line); }
+.regime-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:0 18px 18px; }
+.regime-card { border:1px solid currentColor; border-color:color-mix(in srgb, currentColor 28%, transparent); border-radius:10px; padding:13px; background:rgba(255,255,255,.015); }
+.regime-card-top { display:flex; align-items:center; gap:6px; font-size:11px; margin-bottom:13px; } .regime-card-top span:last-child { margin-left:auto; font-size:9px; color:var(--muted); }
+.regime-dot { width:8px; height:8px; border-radius:50%; background:currentColor; } .regime-card strong { font-size:22px; display:block; letter-spacing:-.04em; } .regime-card small { color:var(--muted); font-size:10px; }
+.meter { height:3px; background:#22334c; border-radius:3px; margin-top:13px; overflow:hidden; } .meter span { display:block; height:100%; border-radius:3px; background:currentColor; }
+.regime-pill { display:inline-block; padding:4px 7px; border-radius:5px; font-size:10px; font-weight:800; }
+.align-right { text-align:right; }
+.timeline-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+.timeline-stat { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; } .timeline-stat strong { font-size:21px; display:block; margin-top:8px; } .timeline-stat span { color:var(--muted); font-size:10px; }
+.formula-strip { border:1px dashed #355173; border-radius:10px; margin:16px 0; padding:13px 15px; color:var(--muted); font-size:10px; line-height:1.55; }
+.formula-strip code { color:#c9d8f0; background:#0e1a2c; padding:2px 5px; border-radius:4px; }
+.footer { color:var(--muted-2); font-size:10px; margin-top:26px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+@media (max-width:1150px) { .kpi-grid { grid-template-columns:repeat(3,1fr); } .corr-hero { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:820px) { .app { grid-template-columns:1fr; } .sidebar { display:none; } .topbar { padding:0 18px; } .content { padding:24px 18px 36px; } .hero { align-items:flex-start; flex-direction:column; } .hero-controls { justify-content:flex-start; } .panel-grid,.panel-grid.equal { grid-template-columns:1fr; } .regime-cards { grid-template-columns:repeat(2,1fr); } .timeline-kpis { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:520px) { .kpi-grid { grid-template-columns:repeat(2,1fr); } .kpi-card { min-height:125px; padding:13px; } .kpi-value { font-size:20px; } .top-actions .chip:first-child { display:none; } .regime-cards { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">Q</div><h1>Portfolio Risk<br>&amp; Regime</h1><p>Decision cockpit for an equal-weighted tech + crypto portfolio.</p></div>
+    <div><div class="nav-label">Workspace</div><nav class="nav" aria-label="Dashboard pages">
+      <button class="active" data-page-target="overview"><span class="nav-icon">◫</span>Portfolio overview</button>
+      <button data-page-target="correlation"><span class="nav-icon">⊞</span>Correlation &amp; diversification</button>
+      <button data-page-target="regimes"><span class="nav-icon">◒</span>Regime timeline</button>
+    </nav></div>
+    <div class="sidebar-bottom"><div class="data-health"><div class="eyebrow">Data health</div><strong><span class="dot"></span>Pipeline snapshot ready</strong><p>18 assets · 5 years daily<br>Yahoo Finance + FRED · through 2026-09-14</p></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div class="breadcrumb">Risk analytics / <b id="crumb">Portfolio overview</b></div><div class="top-actions"><span class="chip">18 assets · 5Y lookback</span><span class="chip live"><span class="dot"></span>Refreshed 2026-09-14</span></div></header>
+    <div class="content">
+      <section class="page active" id="overview">
+        <div class="hero"><div><div class="eyebrow">Executive view · Page 1 of 3</div><h2>Portfolio overview</h2><p>Where are we, how bad has it been, and is risk elevated now?</p></div><div class="hero-controls"><div class="control">Asset class <select aria-label="Asset class"><option>All assets</option><option>Equity</option><option>Crypto</option></select></div><div class="control">Window <select aria-label="Window"><option>5 years</option><option>1 year</option><option>90 days</option></select></div><span class="status-badge low"><span class="dot"></span>Low regime · 37d</span></div></div>
+        <div class="kpi-grid">
+          <article class="kpi-card teal"><div class="kpi-label">Portfolio CAGR</div><div class="kpi-value">21.3%</div><div class="kpi-note">Equal-weighted, rf = 0</div><svg class="spark" viewBox="0 0 100 22" role="img" aria-label="Recent trend"><polyline points="2.0,19.0 8.7,18.6 15.4,11.2 22.1,9.9 28.9,3.0 35.6,4.4 42.3,3.0 49.0,9.2 55.7,12.3 62.4,9.4 69.1,9.9 75.9,11.0 82.6,7.4 89.3,5.0 96.0,3.2" fill="none" stroke="#71d6aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></article>
+          <article class="kpi-card amber"><div class="kpi-label">30D volatility</div><div class="kpi-value">20.7%</div><div class="kpi-note">Annualized · √252</div><svg class="spark" viewBox="0 0 100 22" role="img" aria-label="Recent trend"><polyline points="2.0,16.7 8.7,8.1 15.4,11.4 22.1,9.8 28.9,16.2 35.6,16.9 42.3,18.7 49.0,6.7 55.7,5.5 62.4,3.6 69.1,3.0 75.9,17.5 82.6,19.0 89.3,16.9 96.0,17.4" fill="none" stroke="#f3bd68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></article>
+          <article class="kpi-card red"><div class="kpi-label">1D VaR · 95%</div><div class="kpi-value">2.6%</div><div class="kpi-note">Trailing 250d historical</div></article>
+          <article class="kpi-card red"><div class="kpi-label">Current drawdown</div><div class="kpi-value">-0.4%</div><div class="kpi-note">From running peak</div></article>
+          <article class="kpi-card red"><div class="kpi-label">Maximum drawdown</div><div class="kpi-value">-53.3%</div><div class="kpi-note">Peak → trough</div></article>
+          <article class="kpi-card blue"><div class="kpi-label">VaR breach rate</div><div class="kpi-value">4.4%</div><div class="kpi-note">44 / 1004 days · 5% expected</div></article>
+        </div>
+        <div class="panel-grid"><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>Cumulative performance</h3><p>Indexed to 100 · portfolio versus QQQ and SPY</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/cumulative_returns.png" alt="Cumulative performance" loading="lazy"></div></section><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>Portfolio drawdown</h3><p>Peak-to-trough loss with volatility-regime bands</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/drawdown.png" alt="Portfolio drawdown" loading="lazy"></div></section></div>
+        <div class="panel-grid equal"><section class="panel table-panel"><div class="panel-heading"><div><h3>Asset risk snapshot</h3><p>Current estimates; sort in the live Power BI table</p></div><span class="table-link">View all 18 →</span></div><div class="table-scroll"><table><thead><tr><th>Asset</th><th>CAGR</th><th>Ann. vol</th><th>1D VaR 95%</th><th>Max DD</th></tr></thead><tbody><tr><td><span class="ticker-dot crypto"></span><b>SOL</b><small>Solana</small></td><td>-8.5%</td><td class="risk-value">92.1%</td><td>6.5%</td><td class="negative">-96.1%</td></tr><tr><td><span class="ticker-dot crypto"></span><b>ETH</b><small>Ethereum</small></td><td>-7.0%</td><td class="risk-value">69.5%</td><td>5.9%</td><td class="negative">-78.4%</td></tr><tr><td><span class="ticker-dot equity"></span><b>TSLA</b><small>Tesla Inc.</small></td><td>7.4%</td><td class="risk-value">59.9%</td><td>4.6%</td><td class="negative">-73.6%</td></tr><tr><td><span class="ticker-dot equity"></span><b>AMD</b><small>Advanced Micro Devices</small></td><td>36.4%</td><td class="risk-value">57.3%</td><td>5.7%</td><td class="negative">-65.4%</td></tr><tr><td><span class="ticker-dot equity"></span><b>INTC</b><small>Intel Corp.</small></td><td>14.0%</td><td class="risk-value">54.9%</td><td>6.2%</td><td class="negative">-65.0%</td></tr><tr><td><span class="ticker-dot crypto"></span><b>BTC</b><small>Bitcoin</small></td><td>9.9%</td><td class="risk-value">52.5%</td><td>4.2%</td><td class="negative">-76.6%</td></tr></tbody></table></div></section><section class="panel"><div class="panel-heading"><div><h3>Decision signal</h3><p>What the dashboard is telling the investment committee</p></div><span class="status-badge low">Low</span></div><div class="insight"><strong>Diversification is regime-dependent.</strong><p>Average pairwise correlation rises to <b>0.58</b> in Crisis versus <b>0.32</b> in Low. The risk budget should be sized to stress correlations, not just the current calm tape.</p></div><div class="formula-strip"><b>Headline formulas</b><br><code>Vol = STDEV(daily returns) × √252</code> &nbsp; <code>VaR95 = −PERCENTILE.INC(last 250 returns, 5%)</code><br><span>All values are precomputed in Python and exposed as Power BI-ready columns.</span></div></section></div>
+      </section>
+
+      <section class="page" id="correlation">
+        <div class="hero"><div><div class="eyebrow">Diversification lens · Page 2 of 3</div><h2>Correlation &amp; diversification</h2><p>Flip the regime lens and watch diversification decay under stress.</p></div><div class="hero-controls"><div class="control">Matrix scope <select id="scopeFilter" aria-label="Correlation matrix scope"><option>Full sample</option><option>Low</option><option>Normal</option><option>Elevated</option><option>Crisis</option></select></div><span class="chip">Rows × columns · daily returns</span></div></div>
+        <div class="corr-hero"><div class="metric-box"><div class="eyebrow">Avg pairwise corr</div><div class="metric" id="scopeCorr">—</div><p id="scopeCorrNote">Selected matrix scope</p></div><div class="metric-box"><div class="eyebrow">Equity–crypto corr</div><div class="metric" id="scopeCross">—</div><p>Cross-sleeve co-movement</p></div><div class="metric-box"><div class="eyebrow">Avg 30D vol</div><div class="metric" id="scopeVol">—</div><p>Portfolio, annualized</p></div><div class="metric-box"><div class="eyebrow">Pairs above 0.70</div><div class="metric" id="scopePairs">—</div><p>Unique off-diagonal pairs</p></div></div>
+        <section class="panel"><div class="panel-heading"><div><h3>Correlation by regime</h3><p>Portfolio-wide and cross-sleeve relationships move together when volatility rises.</p></div><span class="panel-menu">Use slicer in Power BI</span></div><div class="chart-frame"><img src="../reports/charts/corr_by_regime.png" alt="Correlation by volatility regime" loading="lazy"></div><p class="scope-note">Preview behavior: the selector updates the KPI scope above. In the live Power BI build, the same scope filters the correlation matrix below through <b>corr_long[scope]</b>.</p><div class="regime-cards"><div class="regime-card low"><div class="regime-card-top"><span class="regime-dot"></span><b>Low</b><span>42.1% of days</span></div><strong>21.7%</strong><small>avg 30D vol · corr 0.32</small><div class="meter"><span style="width:88.3%"></span></div></div><div class="regime-card normal"><div class="regime-card-top"><span class="regime-dot"></span><b>Normal</b><span>26.3% of days</span></div><strong>27.8%</strong><small>avg 30D vol · corr 0.30</small><div class="meter"><span style="width:55.3%"></span></div></div><div class="regime-card elevated"><div class="regime-card-top"><span class="regime-dot"></span><b>Elevated</b><span>14.7% of days</span></div><strong>36.4%</strong><small>avg 30D vol · corr 0.55</small><div class="meter"><span style="width:30.8%"></span></div></div><div class="regime-card crisis"><div class="regime-card-top"><span class="regime-dot"></span><b>Crisis</b><span>9.8% of days</span></div><strong>51.2%</strong><small>avg 30D vol · corr 0.58</small><div class="meter"><span style="width:20.6%"></span></div></div></div></section>
+        <div class="panel-grid equal" style="margin-top:16px"><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>Correlation matrix</h3><p>Full-sample heatmap · fixed −1 to +1 color scale</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/corr_heatmap.png" alt="Correlation matrix" loading="lazy"></div></section><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>Rolling correlation</h3><p>90-day average pairwise and equity–crypto correlation</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/rolling_correlation.png" alt="Rolling correlation" loading="lazy"></div></section></div>
+      </section>
+
+      <section class="page" id="regimes">
+        <div class="hero"><div><div class="eyebrow">State detection · Page 3 of 3</div><h2>Regime timeline</h2><p>Make volatility states visible, measurable, and operational.</p></div><div class="hero-controls"><span class="chip">K-Means · k = 4</span><span class="status-badge low"><span class="dot"></span>Current: Low</span></div></div>
+        <div class="timeline-kpis"><div class="timeline-stat"><div class="eyebrow">Current regime</div><strong>Low</strong><span>37 trading days in spell</span></div><div class="timeline-stat"><div class="eyebrow">Current VIX</div><strong>15.84</strong><span>CBOE volatility index</span></div><div class="timeline-stat"><div class="eyebrow">Episodes observed</div><strong>39</strong><span>Contiguous regime spells</span></div><div class="timeline-stat"><div class="eyebrow">Avg episode length</div><strong>32d</strong><span>Across all labeled states</span></div></div>
+        <div class="panel-grid equal"><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>Volatility regime timeline</h3><p>30-day portfolio volatility with K-Means bands</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/vol_regime_timeline.png" alt="Volatility regime timeline" loading="lazy"></div></section><section class="panel chart-panel tall"><div class="panel-heading"><div><h3>VaR backtest</h3><p>Observed breaches versus the 5% design level</p></div><span class="panel-menu">•••</span></div><div class="chart-frame"><img src="../reports/charts/var_backtest.png" alt="VaR backtest" loading="lazy"></div></section></div>
+        <div class="panel-grid equal"><section class="panel table-panel"><div class="panel-heading"><div><h3>Recent regime episodes</h3><p>Most recent spells first · click through in Power BI</p></div></div><div class="table-scroll"><table><thead><tr><th>Regime</th><th>Start</th><th>End</th><th>Length</th></tr></thead><tbody><tr><td><span class="regime-pill low">Low</span></td><td>2026-07-23</td><td>2026-09-14</td><td class="align-right">37d</td></tr><tr><td><span class="regime-pill normal">Normal</span></td><td>2026-05-07</td><td>2026-07-22</td><td class="align-right">52d</td></tr><tr><td><span class="regime-pill low">Low</span></td><td>2026-03-25</td><td>2026-05-06</td><td class="align-right">30d</td></tr><tr><td><span class="regime-pill normal">Normal</span></td><td>2026-02-09</td><td>2026-03-24</td><td class="align-right">31d</td></tr><tr><td><span class="regime-pill low">Low</span></td><td>2025-11-25</td><td>2026-02-06</td><td class="align-right">50d</td></tr><tr><td><span class="regime-pill normal">Normal</span></td><td>2025-09-12</td><td>2025-11-24</td><td class="align-right">52d</td></tr></tbody></table></div></section><section class="panel"><div class="panel-heading"><div><h3>Regime playbook</h3><p>Operational interpretation of the model output</p></div></div><div class="insight" style="margin-top:2px"><strong><span class="regime-dot" style="background:var(--low);display:inline-block;margin-right:7px"></span>Low / Normal</strong><p>Monitor carry and concentration; do not let calm volatility mechanically increase risk limits.</p></div><div class="insight" style="border-color:var(--amber);margin-top:0"><strong><span class="regime-dot" style="background:var(--amber);display:inline-block;margin-right:7px"></span>Elevated</strong><p>Review exposures and hedge capacity; stress-test using the higher-correlation matrix.</p></div><div class="insight" style="border-color:var(--red);margin-top:0"><strong><span class="regime-dot" style="background:var(--red);display:inline-block;margin-right:7px"></span>Crisis</strong><p>Size to crisis volatility, activate the pre-agreed de-risking playbook, and monitor VaR breach clusters.</p></div></section></div>
+      </section>
+      <div class="footer"><span>Virtual representation · generated from data/processed/powerbi · as of 2026-09-14</span><span>Method: daily simple returns · 252 trading days · historical VaR · K-Means regimes</span></div>
+    </div>
+  </main>
+</div>
+<script>
+const scopeMetrics = {"Full sample":{"corr":0.3753282337182509,"cross":0.271481855975189,"vol":0.28720472431280125,"pairs":3},"Crisis":{"corr":0.5845667783953192,"cross":0.43933254699221297,"vol":0.511592303020362,"pairs":29},"Elevated":{"corr":0.547528441835385,"cross":0.40607788643300424,"vol":0.3642961195077793,"pairs":39},"Low":{"corr":0.3172513696657358,"cross":0.17314500131428087,"vol":0.2170772242934445,"pairs":2},"Normal":{"corr":0.3041575904498821,"cross":0.23251514317289396,"vol":0.277811202463407,"pairs":3}};
+const navLabels = {overview:'Portfolio overview', correlation:'Correlation & diversification', regimes:'Regime timeline'};
+const pages = [...document.querySelectorAll('.page')];
+const navButtons = [...document.querySelectorAll('[data-page-target]')];
+function showPage(name) {
+  pages.forEach(page => page.classList.toggle('active', page.id === name));
+  navButtons.forEach(button => button.classList.toggle('active', button.dataset.pageTarget === name));
+  document.getElementById('crumb').textContent = navLabels[name];
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+navButtons.forEach(button => button.addEventListener('click', () => showPage(button.dataset.pageTarget)));
+function updateScope() {
+  const name = document.getElementById('scopeFilter').value;
+  const m = scopeMetrics[name] || scopeMetrics['Full sample'];
+  document.getElementById('scopeCorr').textContent = Number(m.corr).toFixed(2);
+  document.getElementById('scopeCross').textContent = Number(m.cross).toFixed(2);
+  document.getElementById('scopeVol').textContent = (Number(m.vol) * 100).toFixed(1) + '%';
+  document.getElementById('scopePairs').textContent = m.pairs;
+  document.getElementById('scopeCorrNote').textContent = name + ' · off-diagonal average';
+}
+document.getElementById('scopeFilter').addEventListener('change', updateScope);
+updateScope();
+</script>
+</body>
+</html>

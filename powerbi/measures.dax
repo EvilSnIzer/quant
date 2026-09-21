@@ -25,11 +25,22 @@
 // PAGE 1 — PORTFOLIO OVERVIEW
 // ---------------------------------------------------------------------------
 
-// Cumulative return over the visible date range (relative to range start,
-// so date slicers rebase the curve).
+// Cumulative return over the visible date range (relative to the first and
+// last visible dates, so date slicers rebase the curve without confusing a
+// running drawdown with a return).
 Range Return % =
-VAR LastIdx  = MAXX ( portfolio_daily, portfolio_daily[port_index] )
-VAR FirstIdx = MINX ( portfolio_daily, portfolio_daily[port_index] )
+VAR FirstDate = MIN ( dim_date[date] )
+VAR LastDate  = MAX ( dim_date[date] )
+VAR FirstIdx =
+    CALCULATE (
+        MIN ( portfolio_daily[port_index] ),
+        portfolio_daily[date] = FirstDate
+    )
+VAR LastIdx =
+    CALCULATE (
+        MAX ( portfolio_daily[port_index] ),
+        portfolio_daily[date] = LastDate
+    )
 RETURN DIVIDE ( LastIdx, FirstIdx ) - 1
 
 // Same for the QQQ benchmark (for the "vs benchmark" KPI).
@@ -138,10 +149,12 @@ STDEVX.S ( fact_returns, fact_returns[daily_return] ) * SQRT ( 252 )
 // Use in the Matrix visual: rows = asset1, columns = asset2, values = this.
 Correlation = MAX ( corr_long[correlation] )
 
-// Count of asset pairs above a stress threshold (slicer on scope applies).
+// Count of unique asset pairs above a stress threshold. corr_long stores
+// both (A,B) and (B,A), so the lexical triangle filter prevents double-counting.
 Pairs Above 0.70 =
 CALCULATE (
     COUNTROWS ( corr_long ),
+    corr_long[asset1] < corr_long[asset2],
     corr_long[correlation] > 0.7
 )
 
