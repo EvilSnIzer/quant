@@ -1,8 +1,8 @@
 {
-  "fetched_at_utc": "2026-09-15T05:37:18+00:00",
+  "fetched_at_utc": "2026-09-21T15:32:50+00:00",
   "source": "Yahoo Finance (yfinance) + FRED fredgraph.csv",
   "yfinance_version": "1.7.0",
-  "pandas_version": "3.0.5",
+  "pandas_version": "3.0.6",
   "years": 5,
   "portfolio_assets": [
     "AAPL",
@@ -34,8 +34,8 @@
     "DTWEXBGS"
   ],
   "price_range": {
-    "start": "2021-09-15",
-    "end": "2026-09-15",
+    "start": "2021-09-21",
+    "end": "2026-09-21",
     "rows": 1827
   }
 }
