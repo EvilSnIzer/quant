@@ -1,60 +1,60 @@
 [fetch] Yahoo Finance: 18 portfolio assets + 2 benchmarks, 5y daily
-[fetch] wrote prices_portfolio.csv: 1827 rows x 18 cols, 2021-09-29 → 2026-09-29
-[fetch] wrote prices_benchmark.csv: 1827 rows x 2 cols, 2021-09-29 → 2026-09-29
-[fetch] FRED DGS10: 16169 observations
-[fetch] FRED VIXCLS: 9279 observations
-[fetch] FRED DTWEXBGS: 5198 observations
+[fetch] wrote prices_portfolio.csv: 1827 rows x 18 cols, 2021-10-06 → 2026-10-06
+[fetch] wrote prices_benchmark.csv: 1827 rows x 2 cols, 2021-10-06 → 2026-10-06
+[fetch] FRED DGS10: 16174 observations
+[fetch] FRED VIXCLS: 9287 observations
+[fetch] FRED DTWEXBGS: 5203 observations
 [fetch] wrote _fetch_manifest.json
 [fetch] done
-[returns] equity trading calendar: 1254 days (2021-09-29 → 2026-09-28)
+[returns] equity trading calendar: 1254 days (2021-10-06 → 2026-10-05)
 [returns] wrote returns_wide.csv 1253x18
 [returns] full-sample annualized mean returns:
-AAPL       0.218
+AAPL       0.216
 MSFT       0.165
-NVDA       0.620
-GOOGL      0.242
-AMZN       0.147
-META       0.256
-TSLA       0.242
-AMD        0.526
-NFLX       0.129
-CRM        0.046
-ORCL       0.182
-ADBE      -0.111
-AVGO       0.511
-QCOM       0.188
-INTC       0.324
-BTC-USD    0.279
-ETH-USD    0.226
-SOL-USD    0.403
+NVDA       0.627
+GOOGL      0.239
+AMZN       0.153
+META       0.266
+TSLA       0.254
+AMD        0.527
+NFLX       0.111
+CRM        0.045
+ORCL       0.196
+ADBE      -0.102
+AVGO       0.519
+QCOM       0.182
+INTC       0.323
+BTC-USD    0.220
+ETH-USD    0.178
+SOL-USD    0.368
 dtype: float64
 [returns] done
 [risk] wrote rolling_vol, drawdown, var_daily, corr_full, corr_rolling,
 [risk]       portfolio_metrics, risk_summary
-[risk] latest portfolio vol30=23.4%  var95=2.58%  avg_corr=0.19
+[risk] latest portfolio vol30=21.7%  var95=2.58%  avg_corr=0.20
 [risk] done
 [regimes] clustering on 1164 days x 5 features: ['avg_vol30', 'vol30_dispersion', 'avg_pairwise_corr', 'port_vol30', 'vix']
-[regimes] k=4: cluster shares = {3: 0.465, 0: 0.277, 1: 0.153, 2: 0.106}
+[regimes] k=4: cluster shares = {3: 0.468, 0: 0.275, 2: 0.151, 1: 0.106}
 [regimes] k=4: silhouette = 0.305
 [regimes] centroid profile (annualized vol / avg corr / VIX):
           avg_vol30  avg_pairwise_corr  port_vol30     vix
-Low           0.391              0.316       0.217  15.951
-Normal        0.467              0.304       0.277  17.957
-Elevated      0.484              0.547       0.363  25.556
+Low           0.391              0.315       0.217  15.964
+Normal        0.466              0.303       0.276  17.911
+Elevated      0.483              0.549       0.362  25.555
 Crisis        0.643              0.583       0.517  25.886
 [regimes] chose k=4; regimes.csv/regime_episodes.csv/regime_summary.csv written
 regime_name  n_days  pct_days  n_episodes  avg_episode_days  max_episode_days  avg_port_vol30  avg_pairwise_corr  avg_vix  avg_port_daily_return  worst_port_day
      Crisis     123     0.098           4            30.750                57           0.512              0.585   25.502                  0.001          -0.088
    Elevated     173     0.138           8            21.625                71           0.366              0.556   25.323                  0.000          -0.069
-        Low     541     0.432          11            49.182               159           0.217              0.315   15.944                  0.002          -0.047
-     Normal     327     0.261          12            27.250                52           0.279              0.305   18.351                 -0.001          -0.060
+        Low     543     0.433          12            45.250               159           0.217              0.314   15.970                  0.002          -0.047
+     Normal     325     0.259          12            27.083                52           0.276              0.304   18.227                 -0.001          -0.060
 [regimes] done
 [powerbi] corr_long.csv: 1836 rows
 [powerbi] dim_asset.csv: 20 rows
 [powerbi] dim_date.csv: 1826 rows
 [powerbi] fact_returns.csv: 22554 rows
 [powerbi] portfolio_daily.csv: 1253 rows
-[powerbi] regime_episodes.csv: 36 rows
+[powerbi] regime_episodes.csv: 37 rows
 [powerbi] regime_summary.csv: 4 rows
 [powerbi] risk_summary.csv: 19 rows
 [powerbi] done
