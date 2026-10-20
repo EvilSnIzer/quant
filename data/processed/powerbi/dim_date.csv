@@ -1,11 +1,4 @@
 date,year,quarter,month,month_name,day,weekday,week_of_year
-2021-10-13,2021,4,10,Oct,13,Wednesday,41
-2021-10-14,2021,4,10,Oct,14,Thursday,41
-2021-10-15,2021,4,10,Oct,15,Friday,41
-2021-10-16,2021,4,10,Oct,16,Saturday,41
-2021-10-17,2021,4,10,Oct,17,Sunday,41
-2021-10-18,2021,4,10,Oct,18,Monday,42
-2021-10-19,2021,4,10,Oct,19,Tuesday,42
 2021-10-20,2021,4,10,Oct,20,Wednesday,42
 2021-10-21,2021,4,10,Oct,21,Thursday,42
 2021-10-22,2021,4,10,Oct,22,Friday,42
@@ -1825,3 +1818,10 @@ date,year,quarter,month,month_name,day,weekday,week_of_year
 2026-10-10,2026,4,10,Oct,10,Saturday,41
 2026-10-11,2026,4,10,Oct,11,Sunday,41
 2026-10-12,2026,4,10,Oct,12,Monday,42
+2026-10-13,2026,4,10,Oct,13,Tuesday,42
+2026-10-14,2026,4,10,Oct,14,Wednesday,42
+2026-10-15,2026,4,10,Oct,15,Thursday,42
+2026-10-16,2026,4,10,Oct,16,Friday,42
+2026-10-17,2026,4,10,Oct,17,Saturday,42
+2026-10-18,2026,4,10,Oct,18,Sunday,42
+2026-10-19,2026,4,10,Oct,19,Monday,43
